@@ -60,7 +60,29 @@ var basic = function() {
           setTimeout(restart,3000);
         })
       } else {
-        cloze();
+        inquirer.prompt([
+            {
+              type: "input",
+              message: "What question would you like to ask?",
+              name: "question"
+            },
+            {
+              type: "input",
+              message: "What is the answer?",
+              name: "answer"
+            }
+        ]).then(function (answers) {
+          connection.query("INSERT INTO basic SET ?", {question: answers.question, answer: answers.answer},
+            function(err, res) {
+            if (err) throw err;
+            console.log("Your question: "+ answers.question);
+            console.log("Answer: "+ answers.answer);
+            console.log("Added successfully!");
+            setTimeout(restart,1500);
+            });
+
+      
+        });
       }
   });
 }

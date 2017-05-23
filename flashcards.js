@@ -38,6 +38,37 @@ var start = function() {
     });
 }
 
+var cloze = function() {
+  connection.query("SELECT * FROM cloze", function(err, res){
+    if(err) throw err;
+    if (count>res.length-1){
+      count = 0;
+    }
+    var str = res[count].choices;
+    var options = str.split(",");
+    // console.log(options);
+    inquirer.prompt([
+      {
+        type: "list",
+        message: res[count].partial,
+        choices: options,
+        name: "choice"
+      }
+    ]).then(function(answers){
+      if(answers.choice === res[count].cloze){
+        console.log("Correct!");
+        console.log(res[count].full);
+        setTimeout(restart2,3000);
+      } else {
+        console.log("Incorrect!");
+        console.log(res[count].full);
+        setTimeout(restart2,3000);
+      }
+    });
+  });
+}
+
+
 
 var basic = function() {
   inquirer.prompt([
@@ -80,8 +111,6 @@ var basic = function() {
             console.log("Added successfully!");
             setTimeout(restart,1500);
             });
-
-      
         });
       }
   });
@@ -104,6 +133,26 @@ var restart = function() {
   ]).then(function (answers) {
     if(answers.choice === "Yes"){
       basic();
+      count++
+    } else if(answers.choice === "Return to main menu") {
+      start();
+    } else {
+      connection.end();
+    }
+  });
+}
+
+var restart2 = function() {
+     inquirer.prompt([
+      {
+        type: "list",
+        message: "Would you like another card?",
+        choices: ["Yes","Return to main menu","Quit session"],
+        name: "choice"
+      }
+  ]).then(function (answers) {
+    if(answers.choice === "Yes"){
+      cloze();
       count++
     } else if(answers.choice === "Return to main menu") {
       start();
